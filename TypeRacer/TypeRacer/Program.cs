@@ -39,7 +39,7 @@ namespace TypeRacer
             string[] words = randomText.Split(" ").ToArray();
 
             watch.Start();
-            string[] userInput = Console.ReadLine().Split(" ").ToArray();
+            string[] userInput = Console.ReadLine().Split(" ", StringSplitOptions.RemoveEmptyEntries).ToArray();
             watch.Stop();
             var time = (watch.ElapsedMilliseconds) / 1000.0;
                      
