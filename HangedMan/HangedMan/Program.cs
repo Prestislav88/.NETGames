@@ -42,11 +42,15 @@ namespace HangMan
                 int length = randomCountry.Length;
                 // Empty/Temp country
                 StringBuilder tempCountry = new StringBuilder();
+                List<char> guessedCharacters = new List<char>();
 
                 for (int i = 0; i < length; i++)
                 {
                     if (Char.ToLower(randomCountry[i]) == Char.ToLower(randomCountry[0]) || Char.ToLower(randomCountry[i]) == Char.ToLower(randomCountry[length - 1]))
+                    {
                         tempCountry.Append(randomCountry[i]);
+                        guessedCharacters.Add(Char.ToLower(randomCountry[i]));
+                    }
                     else if (randomCountry[i] == ' ')
                         tempCountry.Append(" ");
                     else
@@ -56,77 +60,91 @@ namespace HangMan
 
                 int totalStrikes = 9;
                 List<char> wrongCharacters = new List<char>();
-                List<char> guessedCharacters = new List<char>();
+                
                 char inputCharacter = ' ';
                 
-
                 while (totalStrikes != 0)
                 {
                     string input = Console.ReadLine();
                     if (input.Length == 1)
                     {
                         inputCharacter = input[0];
-                        if (guessedCharacters.Contains(inputCharacter))
+                        if (Char.IsLetter(inputCharacter))
                         {
-                            Console.WriteLine($"Character {inputCharacter} has already been guessed.");
-                        }
-                        bool isFound = false;
-                        for (int i = 0; i < length; i++)
-                        {
-                            if (Char.ToLower(inputCharacter) == Char.ToLower(randomCountry[i]))
+                            if (guessedCharacters.Contains(inputCharacter))
                             {
-                                tempCountry.Replace('-', randomCountry[i], i, 1);
-                                guessedCharacters.Add(inputCharacter);
-                                isFound = true;
+                                Console.WriteLine($"Character {inputCharacter} has already been guessed.");
                             }
-                        }
-                        if (!isFound)
-                        {
-                            if (wrongCharacters.Contains(inputCharacter))
+                            bool isFound = false;
+                            for (int i = 0; i < length; i++)
                             {
-                                Console.WriteLine($"You have already entered that character: {inputCharacter}");
-                                Console.Write("List of incorrect characters: ");
-                                foreach (char item in wrongCharacters)
+                                if (Char.ToLower(inputCharacter) == Char.ToLower(randomCountry[i]))
                                 {
-                                    Console.Write(item + " ");
+                                    tempCountry.Replace('-', randomCountry[i], i, 1);
+                                    guessedCharacters.Add(inputCharacter);
+                                    isFound = true;
                                 }
-                                Console.WriteLine();
                             }
-                            else
+                            if (!isFound)
                             {
-                                wrongCharacters.Add(inputCharacter);
-                                totalStrikes--;
-                                Console.WriteLine($"You have {totalStrikes} strikes left.");
-                            }
+                                if (wrongCharacters.Contains(inputCharacter))
+                                {
+                                    Console.WriteLine($"You have already entered that character: {inputCharacter}");
+                                    Console.Write("List of incorrect characters: ");
+                                    foreach (char item in wrongCharacters)
+                                    {
+                                        Console.Write(item + " ");
+                                    }
+                                    Console.WriteLine();
+                                }
+                                else
+                                {
+                                    wrongCharacters.Add(inputCharacter);
+                                    totalStrikes--;
+                                    Console.WriteLine($"You have {totalStrikes} strikes left.");
+                                }
 
-                        }
-                        Console.WriteLine(tempCountry.ToString());
-                        if (tempCountry.ToString().ToLower() == randomCountry.ToLower())
-                        {
-                            Console.WriteLine();
-                            Console.WriteLine("You won!");
-                            Console.WriteLine($"The country was: {randomCountry}");
-                            winStreak += 1;
-                            Console.WriteLine($"Current win streak: {winStreak}");
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        if (input.ToLower() == randomCountry.ToLower())
-                        {
-                            Console.WriteLine("You won!");
-                            Console.WriteLine($"The country was: {randomCountry}");
-                            winStreak += 1;
-                            Console.WriteLine($"Current win streak: {winStreak}");
-                            break;
+                            }
+                            Console.WriteLine(tempCountry.ToString());
+                            if (tempCountry.ToString().ToLower() == randomCountry.ToLower())
+                            {
+                                Console.WriteLine();
+                                Console.WriteLine("You won!");
+                                Console.WriteLine($"The country was: {randomCountry}");
+                                winStreak += 1;
+                                Console.WriteLine($"Current win streak: {winStreak}");
+                                break;
+                            }
                         }
                         else
                         {
-                            totalStrikes--;
-                            Console.WriteLine($"You have {totalStrikes} strikes left.");
+                            Console.WriteLine("The entered character isn't a letter!");
+                            continue;
+                        }                       
+                    }
+                    else
+                    {
+                        if (input.Count(c => Char.IsLetter(c) || c == ' ') == input.Length)
+                        {
+                            if (input.ToLower() == randomCountry.ToLower())
+                            {
+                                Console.WriteLine("You won!");
+                                Console.WriteLine($"The country was: {randomCountry}");
+                                winStreak += 1;
+                                Console.WriteLine($"Current win streak: {winStreak}");
+                                break;
+                            }
+                            else
+                            {
+                                totalStrikes--;
+                                Console.WriteLine($"You have {totalStrikes} strikes left.");
+                            }
                         }
-
+                        else
+                        {
+                            Console.WriteLine("The input is not a word!");
+                            continue;
+                        }                       
                     }
                 }
                 if (totalStrikes == 0)
