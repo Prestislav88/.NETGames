@@ -33,6 +33,19 @@ namespace HangMan
             string anotherGame = "";
             int winStreak = 0;
 
+            Action<char> printWrongCharactersMessage = (inputCharacter) =>
+            {
+                Console.WriteLine($"You have already entered that character: {inputCharacter}");
+                Console.Write("List of incorrect characters: ");
+            };
+
+            Action<string> printWrongCountriesMessage = (input) =>
+            {
+                Console.WriteLine($"You have already entered that country: {input}");
+                Console.Write("List of incorrect countries: ");
+            };
+
+
             while (anotherGame != "n")
             {
                 Random random = new Random();
@@ -44,22 +57,12 @@ namespace HangMan
                 StringBuilder tempCountry = new StringBuilder();
                 List<char> guessedCharacters = new List<char>();
 
-                for (int i = 0; i < length; i++)
-                {
-                    if (Char.ToLower(randomCountry[i]) == Char.ToLower(randomCountry[0]) || Char.ToLower(randomCountry[i]) == Char.ToLower(randomCountry[length - 1]))
-                    {
-                        tempCountry.Append(randomCountry[i]);
-                        guessedCharacters.Add(Char.ToLower(randomCountry[i]));
-                    }
-                    else if (randomCountry[i] == ' ')
-                        tempCountry.Append(" ");
-                    else
-                        tempCountry.Append("-");
-                }
-                Console.WriteLine(tempCountry.ToString());
+                PrintCountry(length, randomCountry, tempCountry, guessedCharacters);    
+                
 
                 int totalStrikes = 9;
                 List<char> wrongCharacters = new List<char>();
+                List<string> wrongInputs = new List<string>();
                 
                 char inputCharacter = ' ';
                 
@@ -86,33 +89,12 @@ namespace HangMan
                                 }
                             }
                             if (!isFound)
-                            {
-                                if (wrongCharacters.Contains(inputCharacter))
-                                {
-                                    Console.WriteLine($"You have already entered that character: {inputCharacter}");
-                                    Console.Write("List of incorrect characters: ");
-                                    foreach (char item in wrongCharacters)
-                                    {
-                                        Console.Write(item + " ");
-                                    }
-                                    Console.WriteLine();
-                                }
-                                else
-                                {
-                                    wrongCharacters.Add(inputCharacter);
-                                    totalStrikes--;
-                                    Console.WriteLine($"You have {totalStrikes} strikes left.");
-                                }
+                                IncorrectGuess<char>(inputCharacter, wrongCharacters, ref totalStrikes, printWrongCharactersMessage);
 
-                            }
                             Console.WriteLine(tempCountry.ToString());
                             if (tempCountry.ToString().ToLower() == randomCountry.ToLower())
                             {
-                                Console.WriteLine();
-                                Console.WriteLine("You won!");
-                                Console.WriteLine($"The country was: {randomCountry}");
-                                winStreak += 1;
-                                Console.WriteLine($"Current win streak: {winStreak}");
+                                HandleGameWon(randomCountry, ref winStreak);
                                 break;
                             }
                         }
@@ -128,17 +110,11 @@ namespace HangMan
                         {
                             if (input.ToLower() == randomCountry.ToLower())
                             {
-                                Console.WriteLine("You won!");
-                                Console.WriteLine($"The country was: {randomCountry}");
-                                winStreak += 1;
-                                Console.WriteLine($"Current win streak: {winStreak}");
+                                HandleGameWon(randomCountry, ref winStreak);
                                 break;
                             }
                             else
-                            {
-                                totalStrikes--;
-                                Console.WriteLine($"You have {totalStrikes} strikes left.");
-                            }
+                                IncorrectGuess<string>(input, wrongInputs, ref totalStrikes, printWrongCountriesMessage);
                         }
                         else
                         {
@@ -157,6 +133,48 @@ namespace HangMan
                 Console.WriteLine("Do you want to play one more game? - [Y/n]");
                 anotherGame = Console.ReadLine();
             }
+        }
+        public static void PrintCountry(int length, string randomCountry, StringBuilder tempCountry, List<char> guessedCharacters)
+        {
+            for (int i = 0; i < length; i++)
+            {
+                if (Char.ToLower(randomCountry[i]) == Char.ToLower(randomCountry[0]) || Char.ToLower(randomCountry[i]) == Char.ToLower(randomCountry[length - 1]))
+                {
+                    tempCountry.Append(randomCountry[i]);
+                    guessedCharacters.Add(Char.ToLower(randomCountry[i]));
+                }
+                else if (randomCountry[i] == ' ')
+                    tempCountry.Append(" ");
+                else
+                    tempCountry.Append("-");
+            }
+            Console.WriteLine(tempCountry.ToString());
+        }
+        public static void IncorrectGuess<T>(T input, List<T> wrongInputs, ref int totalStrikes, Action<T> printInvalidMessage)
+        {
+            if (wrongInputs.Contains(input))
+            {
+                printInvalidMessage(input);                
+                foreach (var item in wrongInputs)
+                {
+                    Console.Write(item + ", ");
+                }
+                Console.WriteLine();
+            }
+            else
+            {
+                wrongInputs.Add(input);
+                totalStrikes--;
+                Console.WriteLine($"You have {totalStrikes} strikes left.");
+            }
+        }
+        public static void HandleGameWon(string randomCountry, ref int winStreak)
+        {
+            Console.WriteLine();
+            Console.WriteLine("You won!");
+            Console.WriteLine($"The country was: {randomCountry}");
+            winStreak += 1;
+            Console.WriteLine($"Current win streak: {winStreak}");
         }
     }
 }
